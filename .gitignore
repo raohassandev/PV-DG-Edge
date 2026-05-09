@@ -11,6 +11,7 @@ Thumbs.db
 
 *.log
 dist/
+dist-types/
 build/
 coverage/
-
+*.tsbuildinfo

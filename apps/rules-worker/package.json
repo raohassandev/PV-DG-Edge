@@ -1,0 +1,17 @@
+{
+  "name": "@pvdg/rules-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@pvdg/config": "workspace:*",
+    "@pvdg/logger": "workspace:*",
+    "@pvdg/shared": "workspace:*"
+  }
+}

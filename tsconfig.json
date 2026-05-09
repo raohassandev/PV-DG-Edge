@@ -1,0 +1,16 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "packages/config" },
+    { "path": "packages/logger" },
+    { "path": "packages/db" },
+    { "path": "packages/telemetry" },
+    { "path": "packages/drivers" },
+    { "path": "apps/api" },
+    { "path": "apps/acquisition-worker" },
+    { "path": "apps/aggregation-worker" },
+    { "path": "apps/rules-worker" },
+    { "path": "apps/web" }
+  ]
+}

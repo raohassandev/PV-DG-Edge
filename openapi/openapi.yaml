@@ -5,6 +5,17 @@ info:
 servers:
   - url: /api/v1
 paths:
+  /system/health:
+    get:
+      summary: Get API service health
+      tags: [System]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
   /auth/login:
     post:
       summary: Login user
@@ -95,6 +106,44 @@ paths:
       responses:
         '202': { description: Accepted }
 components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          required: [service, status, timestamp, dependencies]
+          properties:
+            service:
+              type: string
+              enum: [api]
+            status:
+              type: string
+              enum: [ok]
+            timestamp:
+              type: string
+              format: date-time
+            dependencies:
+              type: object
+              properties:
+                database:
+                  type: object
+                  properties:
+                    configured:
+                      type: boolean
+                    status:
+                      type: string
+                      enum: [not_connected]
+        meta:
+          type: object
+          required: [requestId]
+          properties:
+            requestId:
+              type: string
   securitySchemes:
     bearerAuth:
       type: http
