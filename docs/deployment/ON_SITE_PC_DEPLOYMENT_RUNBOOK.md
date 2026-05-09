@@ -4,7 +4,29 @@ Target path: `/opt/pvdg-edge-local/app`
 
 Verified SSH user in this session: `amx-dev`.
 
-Current blocker: `amx-dev` can SSH by key, but `sudo -n true` reports that a sudo password is required. Docker is not installed and `/opt` is root-owned, so deployment needs an interactive administrator step or a temporary safe sudo setup.
+Current blocker: `amx-dev` can SSH, but this automation environment cannot accept typed input at the interactive `sudo -v` prompt. Docker is not installed and `/opt` is root-owned, so deployment needs an operator to run the sudo-protected commands in a real terminal session.
+
+Verified Phase 2C SSH command:
+
+```bash
+ssh amx-dev@192.168.0.188 "hostname && whoami && pwd"
+```
+
+Result:
+
+```text
+site-gatway
+amx-dev
+/home/amx-dev
+```
+
+Interactive sudo attempt:
+
+```bash
+ssh -tt amx-dev@192.168.0.188 "sudo -v"
+```
+
+Result: command timed out waiting for password entry in this non-interactive tool environment.
 
 ## Local Repo Commands
 

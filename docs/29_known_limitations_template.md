@@ -55,3 +55,11 @@ Next action:
   Impact: Local repo implementation can be verified independently, but on-site deployment must not be claimed until both localhost and LAN health checks pass.
   Workaround: Use `docs/deployment/ON_SITE_PC_DEPLOYMENT_RUNBOOK.md` and inventory script when SSH access is available.
   Next action: Run target inventory before any cleanup, then deploy and verify.
+
+- Date: 2026-05-09
+  Phase: 02C Interactive on-site deployment
+  Area: Linux PC sudo access
+  Limitation: The target accepts SSH for `amx-dev`, but this automation environment cannot accept typed input at the interactive `sudo -v` prompt. Docker is not installed and `/opt/pvdg-edge-local` does not exist yet.
+  Impact: The stack cannot be installed or started on the Linux PC from this session, so localhost/LAN health checks, web response, migrations, seed data, and Docker service verification remain pending.
+  Workaround: Run the documented sudo deployment commands from a real interactive terminal on the Linux PC or an SSH session where the operator can type the sudo password manually.
+  Next action: Complete sudo validation, install Docker, create `/opt/pvdg-edge-local`, clone the repo, create target-only `.env`, and run the compose deployment.
