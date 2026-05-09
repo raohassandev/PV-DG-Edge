@@ -4,7 +4,9 @@ Deployment date/time: 2026-05-09, Asia/Karachi local development session.
 
 ## Summary
 
-Phase 2C deployment was attempted but remains blocked at interactive sudo. No password was written to commands, files, docs, logs, scripts, or `.env`.
+Phase 2C deployment was attempted but was blocked at interactive sudo during that session. No password was written to commands, files, docs, logs, scripts, or `.env`.
+
+Phase 2D later completed actual Docker deployment after Docker was installed and Docker group membership became active for `amx-dev`.
 
 ## SSH and Sudo
 
@@ -57,7 +59,7 @@ Docker was not installed because `sudo` could not be completed in this non-inter
 
 Expected project path: `/opt/pvdg-edge-local/app`
 
-Current status: path not created because it requires sudo on `/opt`.
+Current Phase 2D status: path exists at `/opt/pvdg-edge-local/app`.
 
 ## Services Running
 

@@ -4,7 +4,15 @@ Target path: `/opt/pvdg-edge-local/app`
 
 Verified SSH user in this session: `amx-dev`.
 
-Current blocker: `amx-dev` can SSH, but this automation environment cannot accept typed input at the interactive `sudo -v` prompt. Docker is not installed and `/opt` is root-owned, so deployment needs an operator to run the sudo-protected commands in a real terminal session.
+Current status: Phase 2D Docker deployment is running on `site-gatway`.
+
+Verified:
+
+- Docker group access works for `amx-dev`.
+- Project path is `/opt/pvdg-edge-local/app`.
+- Compose stack is started with `deploy/docker-compose.local.yml`.
+- API health works from both `localhost` and `192.168.0.188`.
+- Web responds on port 80.
 
 Verified Phase 2C SSH command:
 
@@ -20,13 +28,7 @@ amx-dev
 /home/amx-dev
 ```
 
-Interactive sudo attempt:
-
-```bash
-ssh -tt amx-dev@192.168.0.188 "sudo -v"
-```
-
-Result: command timed out waiting for password entry in this non-interactive tool environment.
+Historical note: Phase 2C was blocked by interactive sudo. The operator later completed Docker installation and Docker group setup.
 
 ## Local Repo Commands
 
@@ -56,6 +58,13 @@ Deploy:
 
 ```bash
 sudo bash deploy/scripts/deploy_linux_pc.sh
+```
+
+After Docker group membership is active, deployment can run without sudo:
+
+```bash
+cd /opt/pvdg-edge-local/app
+./deploy/scripts/deploy_linux_pc.sh
 ```
 
 Verify:

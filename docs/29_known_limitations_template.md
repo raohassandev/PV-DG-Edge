@@ -63,3 +63,11 @@ Next action:
   Impact: The stack cannot be installed or started on the Linux PC from this session, so localhost/LAN health checks, web response, migrations, seed data, and Docker service verification remain pending.
   Workaround: Run the documented sudo deployment commands from a real interactive terminal on the Linux PC or an SSH session where the operator can type the sudo password manually.
   Next action: Complete sudo validation, install Docker, create `/opt/pvdg-edge-local`, clone the repo, create target-only `.env`, and run the compose deployment.
+
+- Date: 2026-05-09
+  Phase: 02D Actual Docker deployment
+  Area: MQTT health/security
+  Limitation: API health reports overall status `degraded` because MQTT health remains `not_configured`; Mosquitto is running but authenticated MQTT health and ACLs are deferred.
+  Impact: Web, API, DB, Redis, migrations, and seed data are verified, but MQTT security and telemetry verification are not production-complete.
+  Workaround: Keep Mosquitto on the trusted local network for Phase 2.
+  Next action: Implement MQTT authentication, ACLs, and telemetry health in Phase 4.

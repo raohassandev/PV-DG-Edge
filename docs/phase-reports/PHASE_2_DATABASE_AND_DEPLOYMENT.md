@@ -31,6 +31,7 @@ Results:
 - `ssh -o BatchMode=yes amx-dev@192.168.0.188 "command -v docker || true; docker compose version 2>&1 || true; ls -ld /opt /opt/pvdg-edge-local 2>&1 || true"` returned `docker: command not found`, `/opt/pvdg-edge-local` missing, and `/opt` owned by root.
 - `git push origin main` returned `Everything up-to-date` before Phase 2B hardening. The Phase 2B hardening commit must be pushed after local gates pass.
 - Phase 2C attempted `ssh -tt amx-dev@192.168.0.188 "sudo -v"` and it timed out waiting for interactive password entry. No password was written to commands, files, logs, or docs.
+- Phase 2D completed the actual Docker deployment after Docker was installed and Docker group membership became active for `amx-dev`.
 
 Because the brief forbids writing the password into commands, files, logs, screenshots, or config, target install/deploy could not proceed non-interactively from this session.
 
@@ -57,3 +58,4 @@ docker : The term 'docker' is not recognized as the name of a cmdlet, function, 
 - Phase 4 MQTT security and telemetry subscription.
 - Integration database verification on a running TimescaleDB container.
 - On-site deployment requires a real interactive terminal session for sudo, or an operator to run the documented sudo commands on the Linux PC.
+- MQTT service health is reported as `not_configured` in API health during Phase 2 because MQTT auth/telemetry checks are scheduled for Phase 4.
