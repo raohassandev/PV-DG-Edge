@@ -15,4 +15,8 @@ if [ ! -f "$BACKUP_FILE" ]; then
 fi
 
 cd "$APP_PATH"
+set -a
+source .env
+set +a
+
 cat "$BACKUP_FILE" | docker compose -f deploy/docker-compose.local.yml exec -T postgres pg_restore -U "${POSTGRES_USER:-pvdg}" -d "${POSTGRES_DB:-pvdg_edge}" --clean --if-exists

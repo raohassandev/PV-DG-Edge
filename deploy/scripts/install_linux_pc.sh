@@ -4,6 +4,11 @@ set -euo pipefail
 PROJECT_ROOT="/opt/pvdg-edge-local"
 APP_PATH="$PROJECT_ROOT/app"
 
+if ! command -v git >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1 || ! command -v openssl >/dev/null 2>&1; then
+  apt-get update
+  apt-get install -y git curl ca-certificates openssl
+fi
+
 if ! command -v docker >/dev/null 2>&1; then
   curl -fsSL https://get.docker.com | sh
 fi

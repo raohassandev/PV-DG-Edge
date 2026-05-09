@@ -8,6 +8,7 @@
 - API health endpoint with DB and Redis health checks.
 - Local Docker Compose stack for Nginx, web, API, workers, TimescaleDB, Redis, and Mosquitto.
 - Linux PC deployment, inventory, backup, restore, and health-check scripts.
+- Phase 2B deployment hardening: `deploy_linux_pc.sh` can clone/pull the GitHub repo into `/opt/pvdg-edge-local/app`, and backup/restore scripts source target `.env` for database names without committing or printing secrets.
 
 ## Verified
 
@@ -28,6 +29,7 @@ Results:
 - `ssh -o StrictHostKeyChecking=accept-new -o BatchMode=yes amx-dev@192.168.0.188 "hostname"` succeeded and returned `site-gatway`.
 - `ssh -o BatchMode=yes amx-dev@192.168.0.188 "sudo -n true && echo sudo-ok || echo sudo-needs-password"` returned `sudo-needs-password` and `sudo: a password is required`.
 - `ssh -o BatchMode=yes amx-dev@192.168.0.188 "command -v docker || true; docker compose version 2>&1 || true; ls -ld /opt /opt/pvdg-edge-local 2>&1 || true"` returned `docker: command not found`, `/opt/pvdg-edge-local` missing, and `/opt` owned by root.
+- `git push origin main` returned `Everything up-to-date` before Phase 2B hardening. The Phase 2B hardening commit must be pushed after local gates pass.
 
 Because the brief forbids writing the password into commands, files, logs, screenshots, or config, target install/deploy could not proceed non-interactively from this session.
 
