@@ -6,3 +6,5 @@ const config = loadConfig();
 const logger = createLogger("rules-worker", config.LOG_LEVEL);
 
 logger.info(createHealthStatus("rules-worker"), "rules worker bootstrap complete");
+
+setInterval(() => undefined, 60_000);

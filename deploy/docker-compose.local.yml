@@ -33,7 +33,11 @@ services:
       mosquitto:
         condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/v1/system/health >/dev/null 2>&1"]
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://localhost:3000/api/v1/system/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""
+        ]
       interval: 20s
       timeout: 5s
       retries: 5
