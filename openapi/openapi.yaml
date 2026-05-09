@@ -7,106 +7,36 @@ servers:
 paths:
   /system/health:
     get:
-      summary: Get API service health
+      summary: Get local platform health
       tags: [System]
       responses:
         '200':
-          description: OK
+          description: API responded with dependency health. Overall status may be ok or degraded.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
-  /auth/login:
-    post:
-      summary: Login user
-      tags: [Auth]
-      responses:
-        '200': { description: OK }
-  /auth/me:
-    get:
-      summary: Current user
-      tags: [Auth]
-      security: [{ bearerAuth: [] }]
-      responses:
-        '200': { description: OK }
-  /sites:
-    get:
-      summary: List sites
-      tags: [Sites]
-      security: [{ bearerAuth: [] }]
-      responses:
-        '200': { description: OK }
-    post:
-      summary: Create site
-      tags: [Sites]
-      security: [{ bearerAuth: [] }]
-      responses:
-        '201': { description: Created }
-  /devices:
-    get:
-      summary: List devices
-      tags: [Devices]
-      security: [{ bearerAuth: [] }]
-      responses:
-        '200': { description: OK }
-    post:
-      summary: Create device
-      tags: [Devices]
-      security: [{ bearerAuth: [] }]
-      responses:
-        '201': { description: Created }
-  /telemetry/live/site/{siteId}:
-    get:
-      summary: Get live site snapshot
-      tags: [Telemetry]
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - name: siteId
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-      responses:
-        '200': { description: OK }
-  /telemetry/history:
-    get:
-      summary: Query historical telemetry
-      tags: [Telemetry]
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - name: siteId
-          in: query
-          required: true
-          schema: { type: string, format: uuid }
-        - name: metric
-          in: query
-          required: true
-          schema: { type: string }
-        - name: from
-          in: query
-          required: true
-          schema: { type: string, format: date-time }
-        - name: to
-          in: query
-          required: true
-          schema: { type: string, format: date-time }
-      responses:
-        '200': { description: OK }
-  /alarms:
-    get:
-      summary: List alarms
-      tags: [Alarms]
-      security: [{ bearerAuth: [] }]
-      responses:
-        '200': { description: OK }
-  /commands:
-    post:
-      summary: Request command
-      tags: [Commands]
-      security: [{ bearerAuth: [] }]
-      responses:
-        '202': { description: Accepted }
 components:
   schemas:
+    ServiceStatus:
+      type: string
+      enum: [ok, degraded, down, not_configured]
+    ServiceHealth:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/ServiceStatus'
+        latencyMs:
+          type: integer
+          nullable: true
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
     HealthResponse:
       type: object
       required: [success, data, meta]
@@ -116,36 +46,37 @@ components:
           enum: [true]
         data:
           type: object
-          required: [service, status, timestamp, dependencies]
+          required: [status, timestamp, uptimeSeconds, version, environment, services]
           properties:
-            service:
-              type: string
-              enum: [api]
             status:
               type: string
-              enum: [ok]
+              enum: [ok, degraded, down]
             timestamp:
               type: string
               format: date-time
-            dependencies:
+            uptimeSeconds:
+              type: integer
+              minimum: 0
+            version:
+              type: string
+            environment:
+              type: string
+              enum: [development, test, production]
+            services:
               type: object
+              required: [api, database, redis, mqtt]
               properties:
+                api:
+                  $ref: '#/components/schemas/ServiceHealth'
                 database:
-                  type: object
-                  properties:
-                    configured:
-                      type: boolean
-                    status:
-                      type: string
-                      enum: [not_connected]
+                  $ref: '#/components/schemas/ServiceHealth'
+                redis:
+                  $ref: '#/components/schemas/ServiceHealth'
+                mqtt:
+                  $ref: '#/components/schemas/ServiceHealth'
         meta:
           type: object
           required: [requestId]
           properties:
             requestId:
               type: string
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT

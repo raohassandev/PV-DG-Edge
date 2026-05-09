@@ -15,7 +15,8 @@
     "@pvdg/db": "workspace:*",
     "@pvdg/logger": "workspace:*",
     "@pvdg/shared": "workspace:*",
-    "fastify": "^5.2.1"
+    "fastify": "^5.2.1",
+    "redis": "^4.7.0"
   },
   "devDependencies": {
     "tsx": "^4.19.2"

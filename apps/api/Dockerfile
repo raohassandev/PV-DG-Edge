@@ -8,6 +8,7 @@ COPY packages packages
 RUN pnpm install --frozen-lockfile=false
 
 COPY apps/api apps/api
+COPY database database
 RUN pnpm --filter @pvdg/api build
 
 EXPOSE 3000

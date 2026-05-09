@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildServer } from "./server.js";
 
 describe("api health endpoint", () => {
-  it("returns an ok health response", async () => {
+  it("returns the Phase 2 health response shape", async () => {
     const server = buildServer();
     const response = await server.inject({
       method: "GET",
@@ -13,9 +13,13 @@ describe("api health endpoint", () => {
     expect(response.json()).toMatchObject({
       success: true,
       data: {
-        service: "api",
-        status: "ok"
+        services: {
+          api: { status: "ok" },
+          database: { status: "not_configured" },
+          mqtt: { status: "not_configured" }
+        }
       }
     });
+    expect(response.json().data.status).toMatch(/ok|degraded/);
   });
 });

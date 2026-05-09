@@ -1,0 +1,16 @@
+drop table if exists system_events;
+drop table if exists audit_log;
+drop table if exists alarms;
+drop table if exists telemetry_daily;
+drop table if exists telemetry_hourly;
+drop table if exists telemetry_5min;
+drop table if exists telemetry_latest;
+drop table if exists telemetry_raw;
+drop table if exists device_register_maps;
+drop table if exists devices;
+drop table if exists user_roles;
+drop table if exists role_permissions;
+drop table if exists permissions;
+drop table if exists roles;
+drop table if exists users;
+drop table if exists sites;

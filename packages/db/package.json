@@ -7,6 +7,18 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -b",
+    "migrate": "tsx src/migrate.ts",
+    "rollback": "tsx src/rollback.ts",
+    "seed": "tsx src/seed.ts",
+    "status": "tsx src/status.ts",
     "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@pvdg/config": "workspace:*",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.11",
+    "tsx": "^4.19.2"
   }
 }
