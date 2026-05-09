@@ -24,12 +24,18 @@ git pull --ff-only origin "$BRANCH"
 
 if [ ! -f .env ]; then
   DB_PASSWORD_VALUE="$(openssl rand -base64 32 | tr -d '\n')"
+  JWT_SECRET_VALUE="$(openssl rand -base64 32 | tr -d '\n')"
+  SESSION_SECRET_VALUE="$(openssl rand -base64 32 | tr -d '\n')"
   POSTGRES_PASSWORD_KEY="POSTGRES_PASSWORD"
+  JWT_SECRET_KEY="JWT_SECRET"
+  SESSION_SECRET_KEY="SESSION_SECRET"
   tmp_env="$(mktemp)"
   while IFS= read -r line; do
     case "$line" in
       NODE_ENV=*) printf '%s\n' "NODE_ENV=production" ;;
       "${POSTGRES_PASSWORD_KEY}="*) printf '%s=%s\n' "$POSTGRES_PASSWORD_KEY" "$DB_PASSWORD_VALUE" ;;
+      "${JWT_SECRET_KEY}="*) printf '%s=%s\n' "$JWT_SECRET_KEY" "$JWT_SECRET_VALUE" ;;
+      "${SESSION_SECRET_KEY}="*) printf '%s=%s\n' "$SESSION_SECRET_KEY" "$SESSION_SECRET_VALUE" ;;
       *) printf '%s\n' "$line" ;;
     esac
   done < .env.example > "$tmp_env"
@@ -37,7 +43,27 @@ if [ ! -f .env ]; then
   chmod 600 .env
 fi
 
-docker compose -f deploy/docker-compose.local.yml up -d --build
-docker compose -f deploy/docker-compose.local.yml exec -T api pnpm --filter @pvdg/db migrate
-docker compose -f deploy/docker-compose.local.yml exec -T api pnpm --filter @pvdg/db seed
+required_envs=(
+  POSTGRES_PASSWORD
+  POSTGRES_DB
+  POSTGRES_USER
+  POSTGRES_HOST
+  REDIS_URL
+  MQTT_URL
+  JWT_SECRET
+  SESSION_SECRET
+)
+
+for key in "${required_envs[@]}"; do
+  if ! grep -Eq "^${key}=.+" .env; then
+    echo "Required environment value $key is missing or empty in .env" >&2
+    exit 1
+  fi
+done
+
+source deploy/scripts/lib_compose.sh
+compose_run build
+compose_run up -d
+compose_run exec -T api pnpm --filter @pvdg/db migrate
+compose_run exec -T api pnpm --filter @pvdg/db seed
 deploy/scripts/health_check.sh

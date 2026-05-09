@@ -19,4 +19,5 @@ set -a
 source .env
 set +a
 
-cat "$BACKUP_FILE" | docker compose -f deploy/docker-compose.local.yml exec -T postgres pg_restore -U "${POSTGRES_USER:-pvdg}" -d "${POSTGRES_DB:-pvdg_edge}" --clean --if-exists
+source deploy/scripts/lib_compose.sh
+cat "$BACKUP_FILE" | compose_run exec -T postgres pg_restore -U "${POSTGRES_USER:-pvdg}" -d "${POSTGRES_DB:-pvdg_edge}" --clean --if-exists
