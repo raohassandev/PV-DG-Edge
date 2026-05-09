@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automatrix.local/schemas/device_driver.schema.json",
+  "title": "Device Driver",
+  "type": "object",
+  "required": [
+    "driverId",
+    "vendor",
+    "model",
+    "deviceType",
+    "version",
+    "protocols",
+    "registers"
+  ],
+  "properties": {
+    "driverId": {
+      "type": "string"
+    },
+    "vendor": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "deviceType": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "sourceManual": {
+      "type": "string"
+    },
+    "verified": {
+      "type": "boolean"
+    },
+    "protocols": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "modbus_tcp",
+          "modbus_rtu"
+        ]
+      }
+    },
+    "connectionDefaults": {
+      "type": "object"
+    },
+    "registers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "metric",
+          "addressDec",
+          "addressHex",
+          "functionCode",
+          "dataType",
+          "registerCount",
+          "byteOrder",
+          "scale",
+          "unit",
+          "access",
+          "description",
+          "pollGroup"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "metric": {
+            "type": "string"
+          },
+          "addressDec": {
+            "type": "integer"
+          },
+          "addressHex": {
+            "type": "string"
+          },
+          "functionCode": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              15,
+              16
+            ]
+          },
+          "dataType": {
+            "enum": [
+              "bool",
+              "uint16",
+              "int16",
+              "uint32",
+              "int32",
+              "float32",
+              "uint64",
+              "int64",
+              "string"
+            ]
+          },
+          "registerCount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "byteOrder": {
+            "enum": [
+              "ABCD",
+              "BADC",
+              "CDAB",
+              "DCBA"
+            ]
+          },
+          "scale": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "access": {
+            "enum": [
+              "R",
+              "RW",
+              "W"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "pollGroup": {
+            "enum": [
+              "critical",
+              "fast",
+              "normal",
+              "slow",
+              "manual"
+            ]
+          },
+          "enabledByDefault": {
+            "type": "boolean"
+          },
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

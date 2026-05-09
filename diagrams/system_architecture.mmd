@@ -1,0 +1,34 @@
+flowchart LR
+    subgraph Field["Field Layer"]
+      Grid["Grid Meter"]
+      Load["Load Meter"]
+      Solar["Solar Inverter/Meter"]
+      DG["Generator Controller/Meter"]
+      PLC["PLC/HMI"]
+    end
+    subgraph Edge["On-Site Linux PC"]
+      Acq["Acquisition Worker"]
+      Broker["Mosquitto MQTT"]
+      API["Fastify API + Socket.IO"]
+      Agg["Aggregation Worker"]
+      Rules["Rules Worker"]
+      Redis["Redis Live Cache"]
+      DB["PostgreSQL + TimescaleDB"]
+      Web["React Web"]
+      Nginx["Nginx"]
+    end
+    Grid --> Acq
+    Load --> Acq
+    Solar --> Acq
+    DG --> Acq
+    PLC --> Acq
+    Acq --> Broker
+    Broker --> API
+    Broker --> Agg
+    Broker --> Rules
+    API <--> Redis
+    API --> DB
+    Agg --> DB
+    Rules --> DB
+    Nginx <--> Web
+    Nginx <--> API

@@ -1,0 +1,15 @@
+flowchart LR
+    Operator((Operator))
+    Engineer((Engineer))
+    Manager((Manager))
+    Executive((CEO / Executive))
+    Devices[Field Devices]
+    Cloud[Optional Cloud]
+    System[PV-DG Edge Local Platform]
+    Devices -->|Modbus TCP/RTU| System
+    System -->|approved commands| Devices
+    Operator -->|monitor / acknowledge| System
+    Engineer -->|configure / diagnose| System
+    Manager -->|reports / KPIs| System
+    Executive -->|executive summary| System
+    System -->|optional sync| Cloud

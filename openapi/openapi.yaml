@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: PV-DG Edge Local API
+  version: 0.1.0
+servers:
+  - url: /api/v1
+paths:
+  /auth/login:
+    post:
+      summary: Login user
+      tags: [Auth]
+      responses:
+        '200': { description: OK }
+  /auth/me:
+    get:
+      summary: Current user
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+  /sites:
+    get:
+      summary: List sites
+      tags: [Sites]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Create site
+      tags: [Sites]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Created }
+  /devices:
+    get:
+      summary: List devices
+      tags: [Devices]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Create device
+      tags: [Devices]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Created }
+  /telemetry/live/site/{siteId}:
+    get:
+      summary: Get live site snapshot
+      tags: [Telemetry]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: siteId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: OK }
+  /telemetry/history:
+    get:
+      summary: Query historical telemetry
+      tags: [Telemetry]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: siteId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: metric
+          in: query
+          required: true
+          schema: { type: string }
+        - name: from
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          required: true
+          schema: { type: string, format: date-time }
+      responses:
+        '200': { description: OK }
+  /alarms:
+    get:
+      summary: List alarms
+      tags: [Alarms]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+  /commands:
+    post:
+      summary: Request command
+      tags: [Commands]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '202': { description: Accepted }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

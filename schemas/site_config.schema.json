@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automatrix.local/schemas/site_config.schema.json",
+  "title": "Site Configuration",
+  "type": "object",
+  "required": [
+    "site",
+    "devices"
+  ],
+  "properties": {
+    "site": {
+      "type": "object",
+      "required": [
+        "name",
+        "slug",
+        "timezone"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "capacityKw": {
+          "type": "number"
+        },
+        "location": {
+          "type": "object"
+        }
+      }
+    },
+    "devices": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "alarms": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

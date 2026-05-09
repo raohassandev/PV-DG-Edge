@@ -1,0 +1,2 @@
+Decimal Address,Hex Address,Parameter Name,Description,Function Code,Data Type,Scale Factor,Offset,Unit,No. of Registers,Byte Order,Access,Poll Group,Min,Max,Example Raw,Example Value,Source
+30001,0x7531,Grid Voltage L1-N,Line 1 to neutral voltage,4,uint16,0.1,0,V,1,ABCD,R,fast,0,300,2301,230.1,manual p15

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automatrix.local/schemas/canonical_telemetry.schema.json",
+  "title": "Canonical Telemetry",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "ts",
+    "siteId",
+    "deviceId",
+    "deviceType",
+    "source",
+    "quality",
+    "metrics"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "siteId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "siteSlug": {
+      "type": "string"
+    },
+    "deviceId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "deviceSlug": {
+      "type": "string"
+    },
+    "deviceType": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "modbus_tcp",
+        "modbus_rtu",
+        "mqtt",
+        "manual",
+        "system"
+      ]
+    },
+    "quality": {
+      "type": "integer",
+      "enum": [
+        0,
+        64,
+        128,
+        192
+      ]
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "value",
+          "unit",
+          "quality"
+        ],
+        "properties": {
+          "value": {
+            "type": [
+              "number",
+              "boolean",
+              "string",
+              "null"
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "quality": {
+            "type": "integer",
+            "enum": [
+              0,
+              64,
+              128,
+              192
+            ]
+          },
+          "sourceAddress": {
+            "type": "string"
+          },
+          "scale": {
+            "type": "number"
+          },
+          "tags": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "rawRef": {
+      "type": "object"
+    }
+  }
+}
