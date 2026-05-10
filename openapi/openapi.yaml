@@ -53,6 +53,40 @@ paths:
       security: [{ bearerAuth: [] }]
       responses:
         '200': { description: Roles }
+  /telemetry/live/site/{siteId}:
+    get:
+      summary: Get latest live telemetry snapshot for a site from Redis cache
+      tags: [Telemetry]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200':
+          description: Latest site telemetry snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveTelemetryResponse'
+        '401': { description: Authentication required }
+        '403': { description: Permission denied }
+        '404': { description: Live snapshot not found }
+  /telemetry/live/device/{deviceId}:
+    get:
+      summary: Get latest live telemetry snapshot for a device from Redis cache
+      tags: [Telemetry]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
+      responses:
+        '200':
+          description: Latest device telemetry snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveTelemetryResponse'
+        '401': { description: Authentication required }
+        '403': { description: Permission denied }
+        '404': { description: Live snapshot not found }
   /sites:
     get:
       summary: List sites
@@ -217,3 +251,23 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    LiveTelemetryResponse:
+      type: object
+      required: [success, data, meta]
+      properties:
+        success: { type: boolean, example: true }
+        data:
+          type: object
+          required: [updatedAt, payload]
+          properties:
+            siteId: { type: string, format: uuid }
+            deviceId: { type: string, format: uuid }
+            updatedAt: { type: string, format: date-time }
+            payload:
+              type: object
+              description: Canonical telemetry payload validated from MQTT.
+        meta:
+          type: object
+          properties:
+            requestId: { type: string }

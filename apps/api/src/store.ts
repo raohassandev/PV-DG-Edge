@@ -295,7 +295,7 @@ export class MemoryApiStore implements ApiStore {
 
   async hasUsers() { return this.users.size > 0; }
   async createAdmin(input: { fullName: string; email: string; passwordHash: string }) {
-    const user = { id: crypto.randomUUID(), fullName: input.fullName, email: input.email.toLowerCase(), passwordHash: input.passwordHash, isActive: true, permissions: ["admin.manage", "site.view", "site.manage", "device.view", "device.manage", "system.view"] };
+    const user = { id: crypto.randomUUID(), fullName: input.fullName, email: input.email.toLowerCase(), passwordHash: input.passwordHash, isActive: true, permissions: ["admin.manage", "site.view", "site.manage", "device.view", "device.manage", "telemetry.view", "system.view"] };
     this.users.set(user.id, user);
     return user;
   }

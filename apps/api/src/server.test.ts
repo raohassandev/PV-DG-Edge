@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MemoryLiveTelemetryStore, processMqttTelemetryMessage } from "./realtime.js";
 import { buildServer } from "./server.js";
 import { MemoryApiStore } from "./store.js";
 
@@ -78,5 +79,55 @@ describe("auth and site routes", () => {
 
     expect(list.statusCode).toBe(200);
     expect(list.json().data).toHaveLength(1);
+  });
+});
+
+describe("live telemetry", () => {
+  it("accepts canonical MQTT telemetry and returns a site snapshot", async () => {
+    const liveTelemetryStore = new MemoryLiveTelemetryStore();
+    const payload = {
+      schemaVersion: "1.0",
+      ts: "2026-05-09T10:00:00.000Z",
+      siteId: "11111111-1111-4111-8111-111111111111",
+      siteSlug: "demo",
+      deviceId: "22222222-2222-4222-8222-222222222222",
+      deviceSlug: "grid-meter-01",
+      deviceType: "grid_meter",
+      source: "modbus_tcp",
+      quality: 192,
+      metrics: {
+        "ac.power.total_kw": { value: 120.5, unit: "kW", quality: 192 }
+      }
+    };
+
+    const accepted = await processMqttTelemetryMessage(liveTelemetryStore, JSON.stringify(payload));
+    expect(accepted).toMatchObject({ accepted: true, hint: { changed: ["ac.power.total_kw"] } });
+
+    const serverWithTelemetry = buildServer({
+      store: new MemoryApiStore(),
+      liveTelemetryStore,
+      jwtSecret: "test-jwt",
+      sessionSecret: "test-session",
+      mqttStatus: () => ({ status: "ok" })
+    });
+    const setup = await serverWithTelemetry.inject({
+      method: "POST",
+      url: "/api/v1/auth/setup-admin",
+      payload: { fullName: "Admin User", email: "admin@example.com", password: "very-secure-password" }
+    });
+    expect(setup.statusCode).toBe(201);
+    const login = await serverWithTelemetry.inject({
+      method: "POST",
+      url: "/api/v1/auth/login",
+      payload: { email: "admin@example.com", password: "very-secure-password" }
+    });
+    const response = await serverWithTelemetry.inject({
+      method: "GET",
+      url: `/api/v1/telemetry/live/site/${payload.siteId}`,
+      headers: { authorization: `Bearer ${login.json().data.accessToken as string}` }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.payload.metrics["ac.power.total_kw"].value).toBe(120.5);
   });
 });

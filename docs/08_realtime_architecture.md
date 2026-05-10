@@ -42,6 +42,8 @@ sequenceDiagram
 |---|---|
 | site:join | client to server |
 | site:leave | client to server |
+| device:join | client to server |
+| device:leave | client to server |
 | site:telemetry | server to client |
 | device:status | server to client |
 | alarm:changed | server to client |
@@ -56,6 +58,18 @@ health:device:{deviceId}
 alarms:active:{siteId}
 service:health:{serviceName}
 ```
+
+## Phase 4 implementation status
+
+- The API process subscribes to `pvdg/+/+/telemetry` through the configured Mosquitto broker.
+- MQTT telemetry payloads are validated against the canonical telemetry schema before Redis writes or Socket.IO events.
+- Redis stores the most recent site and device snapshots under `live:site:{siteId}` and `live:device:{deviceId}`.
+- Protected HTTP snapshot endpoints are available at:
+  - `GET /api/v1/telemetry/live/site/{siteId}`
+  - `GET /api/v1/telemetry/live/device/{deviceId}`
+- Socket.IO is mounted at `/socket.io` and emits compact `site:telemetry` and `device:status` hints.
+
+Current limitation: Socket.IO room joins are intended for the trusted local network in this phase. Token-authenticated Socket.IO handshakes and room authorization should be added before exposing realtime updates beyond the on-site LAN.
 
 ## Payload rule
 

@@ -10,7 +10,8 @@
     { "path": "../../packages/config" },
     { "path": "../../packages/db" },
     { "path": "../../packages/logger" },
-    { "path": "../../packages/shared" }
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/telemetry" }
   ],
   "include": ["src/**/*.ts"]
 }

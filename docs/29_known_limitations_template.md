@@ -87,3 +87,27 @@ Next action:
   Impact: Engineers can configure site/device/driver records, but cannot yet test physical Modbus devices through the API.
   Workaround: Use CRUD/configuration endpoints only.
   Next action: Implement validated driver loading and Modbus operations in Phase 5.
+
+- Date: 2026-05-10
+  Phase: 04 Realtime MQTT
+  Area: MQTT security
+  Limitation: Mosquitto still allows anonymous access for local Phase 4 testing.
+  Impact: MQTT telemetry should remain on the trusted on-site LAN and must not be exposed externally.
+  Workaround: Keep broker access internal to Docker/LAN only.
+  Next action: Add MQTT username/password and ACLs before production hardening.
+
+- Date: 2026-05-10
+  Phase: 04 Realtime MQTT
+  Area: Socket.IO authorization
+  Limitation: Socket.IO room join events are not yet bound to JWT permissions.
+  Impact: A client that can connect to Socket.IO on the trusted network can join site/device rooms.
+  Workaround: Keep realtime access behind the on-site trusted network and use protected HTTP endpoints for authenticated snapshots.
+  Next action: Add token-authenticated Socket.IO handshakes and room authorization.
+
+- Date: 2026-05-10
+  Phase: 04 Realtime MQTT
+  Area: Acquisition integration
+  Limitation: Realtime telemetry is validated and cached when MQTT messages arrive, but acquisition workers do not yet publish real device readings.
+  Impact: Live data flow is ready for canonical payloads but still depends on simulated publishers or future acquisition work.
+  Workaround: Use simulated canonical MQTT payloads for integration testing.
+  Next action: Implement driver-backed acquisition worker publishing in Phase 5.

@@ -5,7 +5,9 @@ import { checkDatabaseHealth } from "@pvdg/db";
 import { createClient } from "redis";
 import { z } from "zod";
 import { createToken, hashPassword, verifyPassword, verifyToken } from "./auth.js";
+import { MemoryLiveTelemetryStore } from "./realtime.js";
 import { PostgresApiStore } from "./store.js";
+import type { LiveTelemetryStore } from "./realtime.js";
 import type { ApiStore, UserRecord } from "./store.js";
 
 interface ServiceHealth {
@@ -16,8 +18,10 @@ interface ServiceHealth {
 
 interface BuildServerOptions {
   store?: ApiStore;
+  liveTelemetryStore?: LiveTelemetryStore;
   jwtSecret?: string;
   sessionSecret?: string;
+  mqttStatus?: () => ServiceHealth;
 }
 
 interface AuthenticatedRequest extends FastifyRequest {
@@ -93,6 +97,7 @@ function parseBody<T>(schema: z.ZodSchema<T>, request: FastifyRequest, reply: Fa
 export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
   const config = loadConfig();
   const store = options.store ?? new PostgresApiStore();
+  const liveTelemetryStore = options.liveTelemetryStore ?? new MemoryLiveTelemetryStore();
   const jwtSecret = options.jwtSecret ?? config.JWT_SECRET ?? "development-jwt-secret";
   const sessionSecret = options.sessionSecret ?? config.SESSION_SECRET ?? "development-session-secret";
   const app = Fastify();
@@ -134,7 +139,7 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
   app.get("/api/v1/system/health", async (request) => {
     const database = await checkDatabaseHealth();
     const redis = await checkRedisHealth(config.REDIS_URL);
-    const services = { api: { status: "ok" }, database, redis, mqtt: { status: "not_configured" } } satisfies Record<string, ServiceHealth>;
+    const services = { api: { status: "ok" }, database, redis, mqtt: options.mqttStatus?.() ?? { status: "not_configured" } } satisfies Record<string, ServiceHealth>;
     return ok(request, { status: overallStatus(services), timestamp: new Date().toISOString(), uptimeSeconds: Math.round(process.uptime()), version: process.env.npm_package_version ?? "0.1.0", environment: config.NODE_ENV, services });
   });
 
@@ -189,6 +194,34 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
   });
 
   app.get("/api/v1/roles", { preHandler: requirePermission("admin.manage") }, async (request) => ok(request, await store.listRoles()));
+
+  app.get("/api/v1/telemetry/live/site/:siteId", { preHandler: requirePermission("telemetry.view") }, async (request, reply) => {
+    const params = z.object({ siteId: z.string().uuid() }).safeParse(request.params);
+    if (!params.success) {
+      reply.code(400);
+      return fail(request, "VALIDATION_ERROR", "Invalid site id");
+    }
+    const snapshot = await liveTelemetryStore.getSiteSnapshot(params.data.siteId);
+    if (!snapshot) {
+      reply.code(404);
+      return fail(request, "NOT_FOUND", "Live site telemetry snapshot not found");
+    }
+    return ok(request, snapshot);
+  });
+
+  app.get("/api/v1/telemetry/live/device/:deviceId", { preHandler: requirePermission("telemetry.view") }, async (request, reply) => {
+    const params = z.object({ deviceId: z.string().uuid() }).safeParse(request.params);
+    if (!params.success) {
+      reply.code(400);
+      return fail(request, "VALIDATION_ERROR", "Invalid device id");
+    }
+    const snapshot = await liveTelemetryStore.getDeviceSnapshot(params.data.deviceId);
+    if (!snapshot) {
+      reply.code(404);
+      return fail(request, "NOT_FOUND", "Live device telemetry snapshot not found");
+    }
+    return ok(request, snapshot);
+  });
 
   app.get("/api/v1/sites", { preHandler: requirePermission("site.view") }, async (request) => ok(request, await store.listSites()));
   app.post("/api/v1/sites", { preHandler: requirePermission("site.manage") }, async (request, reply) => {
