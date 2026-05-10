@@ -10,73 +10,210 @@ paths:
       summary: Get local platform health
       tags: [System]
       responses:
-        '200':
-          description: API responded with dependency health. Overall status may be ok or degraded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthResponse'
+        '200': { description: OK }
+  /auth/setup-admin:
+    post:
+      summary: First-run admin setup
+      tags: [Auth]
+      responses:
+        '201': { description: Admin created }
+        '409': { description: Setup already complete }
+  /auth/login:
+    post:
+      summary: Login with email and password
+      tags: [Auth]
+      responses:
+        '200': { description: Access and refresh token issued }
+        '401': { description: Invalid credentials }
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      tags: [Auth]
+      responses:
+        '200': { description: Access token issued }
+        '401': { description: Invalid refresh token }
+  /auth/logout:
+    post:
+      summary: Logout current session
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Logout acknowledged }
+  /auth/me:
+    get:
+      summary: Get current user
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Current user }
+  /roles:
+    get:
+      summary: List roles and permissions
+      tags: [Roles]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Roles }
+  /sites:
+    get:
+      summary: List sites
+      tags: [Sites]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Sites }
+    post:
+      summary: Create site
+      tags: [Sites]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Created }
+  /sites/{siteId}:
+    get:
+      summary: Get site
+      tags: [Sites]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200': { description: Site }
+        '404': { description: Not found }
+    patch:
+      summary: Update site
+      tags: [Sites]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200': { description: Updated }
+        '404': { description: Not found }
+    delete:
+      summary: Delete site
+      tags: [Sites]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/siteId'
+      responses:
+        '200': { description: Deleted }
+        '404': { description: Not found }
+  /devices:
+    get:
+      summary: List devices
+      tags: [Devices]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Devices }
+    post:
+      summary: Create device
+      tags: [Devices]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Created }
+  /devices/{deviceId}:
+    get:
+      summary: Get device
+      tags: [Devices]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
+      responses:
+        '200': { description: Device }
+        '404': { description: Not found }
+    patch:
+      summary: Update device
+      tags: [Devices]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
+      responses:
+        '200': { description: Updated }
+        '404': { description: Not found }
+    delete:
+      summary: Delete device
+      tags: [Devices]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
+      responses:
+        '200': { description: Deleted }
+        '404': { description: Not found }
+  /devices/{deviceId}/test-connection:
+    post:
+      summary: Placeholder for future acquisition connection test
+      tags: [Devices]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
+      responses:
+        '501': { description: Scheduled for acquisition phase }
+  /devices/{deviceId}/read-register:
+    post:
+      summary: Placeholder for future validated register read
+      tags: [Devices]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
+      responses:
+        '501': { description: Scheduled for acquisition phase }
+  /drivers:
+    get:
+      summary: List drivers
+      tags: [Drivers]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Drivers }
+  /drivers/import:
+    post:
+      summary: Import driver manifest metadata
+      tags: [Drivers]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Imported }
+  /drivers/{driverId}:
+    get:
+      summary: Get driver
+      tags: [Drivers]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/driverId'
+      responses:
+        '200': { description: Driver }
+        '404': { description: Not found }
+  /drivers/{driverId}/validate:
+    post:
+      summary: Validate stored driver metadata
+      tags: [Drivers]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/driverId'
+      responses:
+        '200': { description: Validation result }
+  /drivers/{driverId}/export:
+    get:
+      summary: Export stored driver metadata
+      tags: [Drivers]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/driverId'
+      responses:
+        '200': { description: Driver export }
 components:
-  schemas:
-    ServiceStatus:
-      type: string
-      enum: [ok, degraded, down, not_configured]
-    ServiceHealth:
-      type: object
-      required: [status]
-      properties:
-        status:
-          $ref: '#/components/schemas/ServiceStatus'
-        latencyMs:
-          type: integer
-          nullable: true
-        error:
-          type: object
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-    HealthResponse:
-      type: object
-      required: [success, data, meta]
-      properties:
-        success:
-          type: boolean
-          enum: [true]
-        data:
-          type: object
-          required: [status, timestamp, uptimeSeconds, version, environment, services]
-          properties:
-            status:
-              type: string
-              enum: [ok, degraded, down]
-            timestamp:
-              type: string
-              format: date-time
-            uptimeSeconds:
-              type: integer
-              minimum: 0
-            version:
-              type: string
-            environment:
-              type: string
-              enum: [development, test, production]
-            services:
-              type: object
-              required: [api, database, redis, mqtt]
-              properties:
-                api:
-                  $ref: '#/components/schemas/ServiceHealth'
-                database:
-                  $ref: '#/components/schemas/ServiceHealth'
-                redis:
-                  $ref: '#/components/schemas/ServiceHealth'
-                mqtt:
-                  $ref: '#/components/schemas/ServiceHealth'
-        meta:
-          type: object
-          required: [requestId]
-          properties:
-            requestId:
-              type: string
+  parameters:
+    siteId:
+      name: siteId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    deviceId:
+      name: deviceId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    driverId:
+      name: driverId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

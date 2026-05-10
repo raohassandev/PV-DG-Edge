@@ -12,7 +12,9 @@ const envSchema = z.object({
   POSTGRES_USER: z.string().default("pvdg"),
   POSTGRES_PASSWORD: z.string().optional(),
   REDIS_URL: z.string().url().default("redis://localhost:6379"),
-  MQTT_URL: z.string().url().default("mqtt://localhost:1883")
+  MQTT_URL: z.string().url().default("mqtt://localhost:1883"),
+  JWT_SECRET: z.string().optional(),
+  SESSION_SECRET: z.string().optional()
 });
 
 export type AppConfig = z.infer<typeof envSchema>;
@@ -22,6 +24,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
 
   if (config.NODE_ENV === "production" && !config.DATABASE_URL && !config.POSTGRES_PASSWORD) {
     throw new Error("POSTGRES_PASSWORD or DATABASE_URL is required in production");
+  }
+
+  if (config.NODE_ENV === "production" && (!config.JWT_SECRET || !config.SESSION_SECRET)) {
+    throw new Error("JWT_SECRET and SESSION_SECRET are required in production");
   }
 
   return config;

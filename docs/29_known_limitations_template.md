@@ -71,3 +71,19 @@ Next action:
   Impact: Web, API, DB, Redis, migrations, and seed data are verified, but MQTT security and telemetry verification are not production-complete.
   Workaround: Keep Mosquitto on the trusted local network for Phase 2.
   Next action: Implement MQTT authentication, ACLs, and telemetry health in Phase 4.
+
+- Date: 2026-05-10
+  Phase: 03 API auth/RBAC/site/device/driver
+  Area: Auth/session management
+  Limitation: Access and refresh tokens are stateless signed tokens; logout acknowledges the request but does not revoke already issued refresh tokens server-side.
+  Impact: A stolen refresh token remains usable until expiry.
+  Workaround: Keep tokens short-lived and rotate secrets if compromise is suspected.
+  Next action: Add persistent refresh-token/session storage and revocation before broader user rollout.
+
+- Date: 2026-05-10
+  Phase: 03 API auth/RBAC/site/device/driver
+  Area: Device driver operations
+  Limitation: Driver import stores metadata/manifests only. Device connection tests and register reads return `NOT_IMPLEMENTED` until acquisition/driver validation phases.
+  Impact: Engineers can configure site/device/driver records, but cannot yet test physical Modbus devices through the API.
+  Workaround: Use CRUD/configuration endpoints only.
+  Next action: Implement validated driver loading and Modbus operations in Phase 5.

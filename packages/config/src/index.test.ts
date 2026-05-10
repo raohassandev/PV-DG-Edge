@@ -9,7 +9,7 @@ describe("loadConfig", () => {
     expect(getPostgresConnectionString(config)).toBeUndefined();
   });
 
-  it("requires database credentials in production", () => {
+  it("requires database and auth secrets in production", () => {
     expect(() => loadConfig({ NODE_ENV: "production" })).toThrow(
       "POSTGRES_PASSWORD or DATABASE_URL is required in production"
     );
@@ -22,7 +22,9 @@ describe("loadConfig", () => {
       POSTGRES_PORT: "5432",
       POSTGRES_DB: "pvdg_edge",
       POSTGRES_USER: "pvdg",
-      POSTGRES_PASSWORD: "secret"
+      POSTGRES_PASSWORD: "secret",
+      JWT_SECRET: "jwt-secret",
+      SESSION_SECRET: "session-secret"
     });
 
     expect(getPostgresConnectionString(config)).toBe("postgres://pvdg:secret@db:5432/pvdg_edge");
