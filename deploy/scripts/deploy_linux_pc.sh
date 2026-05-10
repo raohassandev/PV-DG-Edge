@@ -64,6 +64,7 @@ done
 source deploy/scripts/lib_compose.sh
 compose_run build
 compose_run up -d
+compose_run up -d --force-recreate nginx
 compose_run exec -T api pnpm --filter @pvdg/db migrate
 compose_run exec -T api pnpm --filter @pvdg/db seed
 deploy/scripts/health_check.sh
