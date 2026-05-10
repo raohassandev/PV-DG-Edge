@@ -35,9 +35,9 @@ Unit tests cover:
 - Auth protection on site routes.
 - Site create/list for authenticated admin.
 
-## Pending Deployment
+## Deployment
 
-After commit and push, run on `site-gatway`:
+Deployed to `site-gatway` at `/opt/pvdg-edge-local/app`.
 
 ```bash
 cd /opt/pvdg-edge-local/app
@@ -45,12 +45,25 @@ git pull --ff-only origin main
 ./deploy/scripts/deploy_linux_pc.sh
 ```
 
-Then verify:
+Initial Phase 3 deployment exposed a stale Nginx upstream cache after the API container was recreated. Fix committed:
+
+- `deploy/scripts/deploy_linux_pc.sh` now force-recreates `nginx` after service updates.
+- `deploy/scripts/health_check.sh` retries health checks briefly.
+
+Verified after redeploy:
 
 ```bash
 docker compose --env-file .env -f deploy/docker-compose.local.yml exec api pnpm --filter @pvdg/db status
 curl -sS http://192.168.0.188/api/v1/system/health
+curl -sS -i http://localhost/api/v1/sites
 ```
+
+Results:
+
+- `000003_phase3_api_foundation.up.sql` applied.
+- API health works from localhost and LAN.
+- Protected routes return `401 AUTH_REQUIRED` without a bearer token.
+- Overall health remains `degraded` because MQTT health is intentionally `not_configured` until Phase 4.
 
 ## Known Limitations
 
