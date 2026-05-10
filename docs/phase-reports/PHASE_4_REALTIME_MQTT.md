@@ -53,6 +53,37 @@ curl -sS http://192.168.0.188/api/v1/system/health
 
 No secrets are required in this report.
 
+## Site PC deployment verification
+
+Target: `site-gatway` at `192.168.0.188`.
+
+Commands run from the development machine:
+
+```bash
+ssh amx-dev@192.168.0.188 "hostname && whoami && cd /opt/pvdg-edge-local/app && git pull --ff-only origin main && ./deploy/scripts/deploy_linux_pc.sh"
+ssh amx-dev@192.168.0.188 "cd /opt/pvdg-edge-local/app && docker compose --env-file .env -f deploy/docker-compose.local.yml ps"
+curl http://192.168.0.188/api/v1/system/health
+```
+
+Results:
+
+- Docker Compose services were running: nginx, web, api, postgres, redis, mosquitto, acquisition worker, aggregation worker, and rules worker.
+- API health returned `status: ok`.
+- Database health returned `ok`.
+- Redis health returned `ok`.
+- MQTT health returned `ok`.
+- Web responded on `http://192.168.0.188` with HTTP 200.
+- Protected live telemetry endpoint returned `401 AUTH_REQUIRED` without a bearer token, as expected.
+
+Simulated MQTT verification:
+
+```bash
+docker compose --env-file .env -f deploy/docker-compose.local.yml exec -T mosquitto mosquitto_pub -h localhost -t pvdg/demo/grid-meter-01/telemetry -l
+docker compose --env-file .env -f deploy/docker-compose.local.yml exec -T redis redis-cli EXISTS live:site:11111111-1111-4111-8111-111111111111 live:device:22222222-2222-4222-8222-222222222222 health:device:22222222-2222-4222-8222-222222222222
+```
+
+Result: Redis returned `3`, confirming the valid MQTT telemetry message was accepted and cached for site, device, and device health keys.
+
 ## Known limitations
 
 - Mosquitto still allows anonymous access for local Phase 4 testing.
