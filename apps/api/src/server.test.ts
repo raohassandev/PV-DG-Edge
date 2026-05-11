@@ -100,8 +100,13 @@ describe("live telemetry", () => {
       }
     };
 
-    const accepted = await processMqttTelemetryMessage(liveTelemetryStore, JSON.stringify(payload));
+    const persisted: unknown[] = [];
+    const accepted = await processMqttTelemetryMessage(liveTelemetryStore, JSON.stringify(payload), "pvdg/111/222/telemetry", async (telemetry, topic) => {
+      persisted.push({ telemetry, topic });
+    });
     expect(accepted).toMatchObject({ accepted: true, hint: { changed: ["ac.power.total_kw"] } });
+    expect(persisted).toHaveLength(1);
+    expect(persisted[0]).toMatchObject({ topic: "pvdg/111/222/telemetry" });
 
     const serverWithTelemetry = buildServer({
       store: new MemoryApiStore(),
@@ -129,5 +134,17 @@ describe("live telemetry", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json().data.payload.metrics["ac.power.total_kw"].value).toBe(120.5);
+  });
+
+  it("rejects invalid MQTT telemetry before persistence", async () => {
+    const liveTelemetryStore = new MemoryLiveTelemetryStore();
+    const persisted: unknown[] = [];
+
+    const rejected = await processMqttTelemetryMessage(liveTelemetryStore, "{", "pvdg/bad/topic", async (telemetry) => {
+      persisted.push(telemetry);
+    });
+
+    expect(rejected).toMatchObject({ accepted: false });
+    expect(persisted).toHaveLength(0);
   });
 });

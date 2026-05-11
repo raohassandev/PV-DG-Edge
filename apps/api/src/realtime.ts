@@ -4,6 +4,7 @@ import type { MqttClient } from "mqtt";
 import { createClient } from "redis";
 import type { RedisClientType } from "redis";
 import { Server as SocketIoServer } from "socket.io";
+import { persistCanonicalTelemetry } from "@pvdg/db";
 import { parseCanonicalTelemetryJson, type CanonicalTelemetryPayload } from "@pvdg/telemetry";
 
 export interface LiveTelemetryHint {
@@ -27,6 +28,8 @@ export interface LiveTelemetryStore {
   getDeviceSnapshot(deviceId: string): Promise<LiveTelemetrySnapshot | null>;
   close?(): Promise<void>;
 }
+
+export type TelemetryPersistence = (payload: CanonicalTelemetryPayload, sourceTopic?: string) => Promise<void>;
 
 export interface RealtimeService {
   io: SocketIoServer;
@@ -105,13 +108,24 @@ export function telemetryHint(payload: CanonicalTelemetryPayload): LiveTelemetry
   };
 }
 
-export async function processMqttTelemetryMessage(store: LiveTelemetryStore, message: string | Buffer): Promise<{ accepted: true; hint: LiveTelemetryHint } | { accepted: false; errors: string[] }> {
+export async function processMqttTelemetryMessage(
+  store: LiveTelemetryStore,
+  message: string | Buffer,
+  sourceTopic?: string,
+  persist: TelemetryPersistence = persistCanonicalTelemetry
+): Promise<{ accepted: true; hint: LiveTelemetryHint } | { accepted: false; errors: string[] }> {
   const parsed = parseCanonicalTelemetryJson(message);
   if (!parsed.valid || !parsed.payload) {
     return { accepted: false, errors: parsed.errors ?? ["Invalid telemetry payload"] };
   }
 
   const hint = await store.setTelemetry(parsed.payload);
+  try {
+    await persist(parsed.payload, sourceTopic);
+  } catch (error) {
+    const messageText = error instanceof Error ? error.message : "unknown persistence error";
+    console.error({ siteId: parsed.payload.siteId, deviceId: parsed.payload.deviceId, sourceTopic, error: messageText }, "telemetry persistence failed");
+  }
   return { accepted: true, hint };
 }
 
@@ -160,8 +174,8 @@ export function startRealtimeServices(options: { httpServer: HttpServer; store: 
   mqttClient.on("close", () => options.onMqttStatusChange?.("degraded"));
   mqttClient.on("error", () => options.onMqttStatusChange?.("down"));
 
-  mqttClient.on("message", (_topic, message) => {
-    void processMqttTelemetryMessage(options.store, message).then((result) => {
+  mqttClient.on("message", (topic, message) => {
+    void processMqttTelemetryMessage(options.store, message, topic).then((result) => {
       if (!result.accepted) return;
       io.to(`site:${result.hint.siteId}`).emit("site:telemetry", result.hint);
       io.to(`device:${result.hint.deviceId}`).emit("device:status", result.hint);

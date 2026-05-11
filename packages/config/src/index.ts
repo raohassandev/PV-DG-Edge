@@ -13,6 +13,7 @@ const envSchema = z.object({
   POSTGRES_PASSWORD: z.string().optional(),
   REDIS_URL: z.string().url().default("redis://localhost:6379"),
   MQTT_URL: z.string().url().default("mqtt://localhost:1883"),
+  ACQUISITION_REFRESH_INTERVAL_MS: z.coerce.number().int().positive().default(10_000),
   JWT_SECRET: z.string().optional(),
   SESSION_SECRET: z.string().optional()
 });

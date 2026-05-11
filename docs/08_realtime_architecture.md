@@ -71,6 +71,13 @@ service:health:{serviceName}
 
 Current limitation: Socket.IO room joins are intended for the trusted local network in this phase. Token-authenticated Socket.IO handshakes and room authorization should be added before exposing realtime updates beyond the on-site LAN.
 
+## Phase 5 persistence update
+
+- Accepted MQTT telemetry is now persisted to PostgreSQL after Redis live cache update.
+- Full canonical payloads are inserted into `telemetry_raw`.
+- Individual metrics are upserted into `telemetry_latest`.
+- Persistence errors are logged and do not stop MQTT processing or Socket.IO hints.
+
 ## Payload rule
 
 Send compact Socket.IO hints, not huge full payloads.

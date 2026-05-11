@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@pvdg/config": "workspace:*",
+    "@pvdg/telemetry": "workspace:*",
     "pg": "^8.13.1"
   },
   "devDependencies": {

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import pg from "pg";
 import { getPostgresConnectionString, loadConfig } from "@pvdg/config";
 import type { AppConfig } from "@pvdg/config";
+export { persistCanonicalTelemetry, telemetryQualityText } from "./telemetry.js";
 
 const { Pool } = pg;
 
