@@ -111,3 +111,19 @@ Next action:
   Impact: Live data flow is ready for canonical payloads but still depends on simulated publishers or future acquisition work.
   Workaround: Use simulated canonical MQTT payloads for integration testing.
   Next action: Implement driver-backed acquisition worker publishing in Phase 5.
+
+- Date: 2026-05-11
+  Phase: 05B Modbus acquisition
+  Area: Polling performance
+  Limitation: The acquisition worker reads each register map independently instead of grouping contiguous reads.
+  Impact: Correctness is prioritized, but high-register-count devices may poll less efficiently.
+  Workaround: Use practical polling intervals and focused register maps.
+  Next action: Add grouped read planning by function code and contiguous address ranges.
+
+- Date: 2026-05-11
+  Phase: 05B Modbus acquisition
+  Area: Real device verification
+  Limitation: Unit tests cover decoding and publish behavior, but real device acquisition requires a configured device or documented simulator test on the deployment target.
+  Impact: The implementation must not be described as production telemetry until that verification is completed.
+  Workaround: Use a known Modbus simulator or a configured read-only field device for acceptance testing.
+  Next action: Add a simulator-backed integration test or run against an on-site test device.

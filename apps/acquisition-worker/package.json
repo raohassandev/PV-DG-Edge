@@ -11,7 +11,12 @@
   },
   "dependencies": {
     "@pvdg/config": "workspace:*",
+    "@pvdg/db": "workspace:*",
     "@pvdg/logger": "workspace:*",
-    "@pvdg/shared": "workspace:*"
+    "@pvdg/shared": "workspace:*",
+    "@pvdg/telemetry": "workspace:*",
+    "modbus-serial": "^8.0.23",
+    "mqtt": "^5.10.3",
+    "pg": "^8.13.1"
   }
 }

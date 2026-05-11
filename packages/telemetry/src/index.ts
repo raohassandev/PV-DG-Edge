@@ -14,7 +14,7 @@ export const telemetryDeviceTypes = [
   "other"
 ] as const;
 
-export const telemetrySources = ["modbus_tcp", "modbus_rtu", "mqtt", "manual", "system"] as const;
+export const telemetrySources = ["modbus_tcp", "modbus_rtu", "mqtt", "manual", "system", "acquisition-worker"] as const;
 
 export const canonicalMetricValueSchema = z.object({
   value: z.number().finite(),
